@@ -6,15 +6,7 @@
 
 - name: Init Kubernetes cluster
   when: reset_cluster is succeeded
-  shell: |
-    kubeadm init --service-cidr {{ service_cidr }} \
-                 --kubernetes-version {{ kube_version }} \
-                 --pod-network-cidr {{ pod_network_cidr }} \
-                 --token {{ token }} \
-                 --apiserver-advertise-address {{ master_ip }} \
-                 --cri-socket=/var/run/{{ container_runtime }}/{{ container_runtime }}.sock \
-                 {{ kubeadm_opts }} \
-                 {{ init_opts }}
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16
   register: init_cluster
   # See: https://github.com/jetstack/cert-manager/issues/2640 with using kubeadm + calico + cert-manager
   environment:

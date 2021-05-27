@@ -1,45 +1,66 @@
 ---
-- hosts: kube-cluster
+- hosts: localhost
   gather_facts: yes
   become: yes
   roles:
     - { role: docker, tags: docker }
 
-- hosts: master
+- hosts: localhost
   gather_facts: yes
   become: yes
   roles:
     - { role: kubernetes/master, tags: master }
     - { role: cni, tags: cni }
 
-- hosts: node
+
+
+
+- hosts: localhost
   gather_facts: yes
   become: yes
-  roles:
-    - { role: kubernetes/node, tags: node }
+  tasks:
+    - name: "update all install packages"
+      include_role:
+        name: update 
+      run_once: yes
 
-- hosts: master
+    - name: "Create .kube file if it does not exists"
+      include_role:
+        name: kube
+      run_once: yes
+
+    - name: "Move Kubernetes config file if it exists"
+      include_role:
+        name: move-config-file 
+      run_once: yes
+ 
+    - name: "taint nodes"
+      include_role:
+        name: taint-nodes
+      run_once: yes
+
+
+
+
+
+
+- hosts: localhost
   gather_facts: yes
   become: yes
   tasks:
     - name: "Helm role"
       include_role:
         name: helm
-      when: "additional_features.helm"
       run_once: yes
-      tags: helm
 
     - name: "MetalLB role"
       include_role:
         name: metallb
-      when: "additional_features.metallb"
       run_once: yes
       tags: metallb
 
     - name: "Healthcheck role"
       include_role:
         name: healthcheck
-      when: "additional_features.healthcheck"
       run_once: yes
-      tags: healthcheck
 
