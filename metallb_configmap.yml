@@ -9,4 +9,4 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - {{ metallb_address_space }}
+      - ${IP}-${IP}{LAYER}
